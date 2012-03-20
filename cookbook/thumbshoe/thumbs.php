@@ -9,14 +9,14 @@
 SDV($UploadDir,'uploads');
 
 function
-ThumbshoeMakeThumb($pagename,$picpath,$w=128,$h=128) {
-    global $ThumbshoeThumbBg, $ThumbshoeThumbPrefix;
+ThumbShoeMakeThumb($pagename,$picpath,$w=128,$h=128) {
+    global $ThumbShoeThumbBg, $ThumbShoeThumbPrefix;
     global $UploadDir, $UploadPrefixFmt;
 
     $uploaddir = FmtPageName("$UploadDir$UploadPrefixFmt", $pagename);
     $name = FmtPageName('{$Name}', $pagename);
 
-    $thumbpath = "$uploaddir/${ThumbshoeThumbPrefix}${name}.png";
+    $thumbpath = "$uploaddir/${ThumbShoeThumbPrefix}${name}.png";
     if (file_exists($thumbpath) || !file_exists($picpath))
     {
         return;
@@ -26,7 +26,7 @@ ThumbshoeMakeThumb($pagename,$picpath,$w=128,$h=128) {
         mkdirp($uploaddir);
     }
 
-    $bg = $ThumbshoeThumbBg;
+    $bg = $ThumbShoeThumbBg;
     $tmp1 = "$uploaddir/${name}_tmp.png";
     $area = $w * $h;
     
@@ -57,4 +57,4 @@ ThumbshoeMakeThumb($pagename,$picpath,$w=128,$h=128) {
               ."'</pre> with a status '$status'.<br/> Command line was '$cl'.");
     }
     unlink($tmp1);
-} # ThumbshoeMakeThumb
+} # ThumbShoeMakeThumb

@@ -17,11 +17,12 @@
 */
 
 ## Version of this recipe
-$RecipeInfo['Thumbshoe']['Version'] = '2012-03-16';
+$RecipeInfo['ThumbShoe']['Version'] = '2012-03-16';
 
-SDV($ThumbshoeThumbBg, "grey");
-SDV($ThumbshoeThumbPrefix, "thumb_");
-SDVA($ThumbshoeImgExt, array(
+SDV($ThumbShoeThumbBg, "grey");
+SDV($ThumbShoeThumbPrefix, "thumb_");
+SDV($ThumbShoeCacheFmt, 'thumbshoe.d/{$FullName}');
+SDVA($ThumbShoeImgExt, array(
 'gif',
 'png',
 'jpg',
@@ -31,7 +32,7 @@ SDVA($ThumbshoeImgExt, array(
 'eps',
 'svg',
 ));
-SDVA($ThumbshoeFields, array(
+SDVA($ThumbShoeFields, array(
 'Filename' => '%f',
 'Size' => '%b',
 'Comment' => '%c',
