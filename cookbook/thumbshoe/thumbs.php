@@ -2,8 +2,6 @@
 
 /*
  * Code for creating thumbnails.
- * Note that this will not check for updates;
- * it will only create a thumbnail if a thumbnail doesn't exist.
  */
 
 SDV($UploadDir,'uploads');
@@ -17,7 +15,11 @@ ThumbShoeMakeThumb($pagename,$picpath,$w=128,$h=128) {
     $name = FmtPageName('{$Name}', $pagename);
 
     $thumbpath = "$uploaddir/${ThumbShoeThumbPrefix}${name}.png";
-    if (file_exists($thumbpath) || !file_exists($picpath))
+    if (!file_exists($picpath)) return;
+    // if the thumbnail has already been created
+    // and it is newer than the original image, return.
+    if (file_exists($thumbpath)
+        && (filemtime($thumbpath) > filemtime($picpath)))
     {
         return;
     }
@@ -30,7 +32,7 @@ ThumbShoeMakeThumb($pagename,$picpath,$w=128,$h=128) {
     $tmp1 = "$uploaddir/${name}_tmp.png";
     $area = $w * $h;
     
-    # Need to use the following conversion instead because of
+    # Need to use the following conversion because of
     # ImageMagick version earlier than 6.3
     $cmdfmt = 'convert -thumbnail \'%dx%d>\' -bordercolor %s -background %s -border 50 -gravity center  -crop %dx%d+0+0 +repage %s %s';
     $cl = sprintf($cmdfmt, $w, $h, $bg, $bg, $w, $h, $picpath, $tmp1);
