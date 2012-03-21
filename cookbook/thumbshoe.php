@@ -152,6 +152,7 @@ SDVA($ThumbShoeFields, array(
 
 include("thumbshoe/pagestore.php");
 include("thumbshoe/thumbs.php");
+include("thumbshoe/cluster.php");
 
 ## Add a custom page storage location and some bundled wikipages.
 #@include("thumbshoe/bundlepages.php");
