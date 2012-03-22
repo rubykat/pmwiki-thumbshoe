@@ -17,6 +17,7 @@ class ThumbShoePageStore extends PageStore {
     var $cachefmt;
     function ThumbShoePageStore($galleryGroup,$picDir,$picUrl,$hidemeta=false) { 
         global $ThumbShoeFields, $ThumbShoeImgExt, $ThumbShoeCacheFmt;
+        global $ThumbShoeKeywordsGroup;
         $this->galleryGroup = $galleryGroup;
         $this->picDir = $picDir;
         $this->picDirUrl = $picUrl;
@@ -68,7 +69,7 @@ class ThumbShoePageStore extends PageStore {
     }
     function read($pagename, $since=0) {
         if( $pagename=="" ) return "";
-        global $ThumbShoeThumbPrefix;
+        global $ThumbShoeThumbPrefix, $ThumbShoeKeywordsGroup;
         if (preg_match('/' . $this->imgRx . '$/i', $pagename))
         {
             StopWatch("ThumbShoePageStore::read begin $pagename");
@@ -97,8 +98,28 @@ class ThumbShoePageStore extends PageStore {
                         $text = ":ImageUrl:" . $this->picDirUrl . "/" . $basename . "\n" . $text;
                     }
                     // get rid of the extra newlines
-                    $text = str_replace("\n\n", "\n", $text);
-                    $text = preg_replace('/\s*$/', '', $text);
+                    $text = preg_replace('/\n\n+/', "\n", $text);
+                    $text = trim($text);
+
+                    // Find the keywords, if any
+                    if (preg_match('/Keywords:(.*)/', $text, $m))
+                    {
+                        $keywords=$m[1];
+                        if ($ThumbShoeKeywordsGroup && $keywords)
+                        {
+                            $cats = explode(';',$keywords);
+                            $catpages = array();
+                            foreach((array)$cats as $k)
+                            {
+                                $tpn = MakePageName(
+                                $ThumbShoeKeywordsGroup . '.' . $ThumbShoeKeywordsGroup, $k);
+                                $catpages[] = $tpn;
+                                StopWatch("ThumbShoePageStore::read targets $tpn");
+                            }
+                            $page['targets'] = implode(',',$catpages);
+                        }
+                    }
+
                     $page['name'] = $pagename;
                     $page['text'] = $text;
 
@@ -154,7 +175,7 @@ class ThumbShoePageStore extends PageStore {
         $cfmt = $this->cachefmt;
         if ($pagename > '') {
             $pagename = str_replace('/', '.', $pagename);
-## optimizations for standard locations
+            ## optimizations for standard locations
             if ( $cfmt == 'thumbshoe.d/{$FullName}' )				return "thumbshoe.d/$pagename";
             if ( $cfmt == 'thumbshoe.d/{$Group}/{$FullName}' )	return preg_replace( '/([^.]+).*/', 'thumbshoe.d/$1/$0', $pagename );
         }
@@ -252,3 +273,4 @@ class ThumbShoePageStore extends PageStore {
         }
     }
 } // ThumbShoePageStore
+
