@@ -8,19 +8,16 @@
 
 class ThumbShoePageStore extends PageStore {
     var $galleryGroup;
-    var $picDir;
-    var $picDirUrl;
     var $imgRx;
     var $IMFormat;
     var $hidemeta;
     var $cache;
     var $cachefmt;
-    function ThumbShoePageStore($galleryGroup,$picDir,$picUrl,$hidemeta=false) { 
+    function ThumbShoePageStore($galleryGroup,$hidemeta=false) { 
+        global $UploadPrefixFmt;
         global $ThumbShoeFields, $ThumbShoeImgExt, $ThumbShoeCacheFmt;
         global $ThumbShoeKeywordsGroup;
         $this->galleryGroup = $galleryGroup;
-        $this->picDir = $picDir;
-        $this->picDirUrl = $picUrl;
         $this->hidemeta = $hidemeta;
         $this->cachefmt = $ThumbShoeCacheFmt;
 
@@ -42,15 +39,17 @@ class ThumbShoePageStore extends PageStore {
         }
         $this->IMFormat = $format;
     }
+
     function pagefile($pagename) {
         if( $pagename=="" ) return "";
         $pagename = str_replace('/', '.', $pagename);
 
-        $name = FmtPageName('{$Name}', $pagename);
+        $name = PageVar($pagename, '$Name');
         if (preg_match('/(.*)_' . $this->imgRx . '$/i', $name, $m))
         {
-            $filename = $m[1] . '.' . $m[2];
-            $fullname = $this->picDir . '/' . $filename;
+            $filename = PageVar($pagename, '$TSPageImage');
+            $dir = PageVar($pagename, '$TSUploadDir');
+            $fullname = $dir . '/' . $filename;
             if (file_exists($fullname))
             {
                 return $fullname;
@@ -58,7 +57,7 @@ class ThumbShoePageStore extends PageStore {
             else
             {
                 $filename = preg_replace('/^(.)/e', "strtolower('$1')", $filename);
-                $fullname = $this->picDir . '/' . $filename;
+                $fullname = $dir . '/' . $filename;
                 if (file_exists($fullname))
                 {
                     return $fullname;
@@ -80,7 +79,7 @@ class ThumbShoePageStore extends PageStore {
                 $page = $this->get_from_cache($pagename);
                 if (!$page)
                 {
-                    $name = FmtPageName('{$Name}', $pagename);
+                    $name = PageVar($pagename, '$Name');
                     $basename = basename($pagefile);
                     $thumbfile = $ThumbShoeThumbPrefix . $name . ".png";
                     $sout = shell_exec("identify -format '" . $this->IMFormat . "' $pagefile");
@@ -89,13 +88,13 @@ class ThumbShoePageStore extends PageStore {
                     {
                         $text = preg_replace('/^\(:\w+::\)$/m', '', $sout);
                         $text = "(:ThumbFile:" . $thumbfile . ":)\n" . $text;
-                        $text = "(:ImageUrl:" . $this->picDirUrl . "/" . $basename . ":)\n" . $text;
+                        $text = "(:ImageFile:" . $basename . ":)\n" . $text;
                     }
                     else
                     {
                         $text = preg_replace('/^:\w+:$/m', '', $sout);
                         $text = ":ThumbFile:" . $thumbfile . "\n" . $text;
-                        $text = ":ImageUrl:" . $this->picDirUrl . "/" . $basename . "\n" . $text;
+                        $text = ":ImageFile:" . $basename . "\n" . $text;
                     }
                     // get rid of the extra newlines
                     $text = preg_replace('/\n\n+/', "\n", $text);
@@ -136,31 +135,54 @@ class ThumbShoePageStore extends PageStore {
         return;
     }
     function ls($pats=NULL) {
+        global $UploadDir, $UploadPrefixFmt;
         global $GroupPattern, $NamePattern;
-        global $ThumbShoeThumbPrefix;
-        StopWatch("ThumbShoePageStore::ls begin {$this->picDir}");
+        global $ThumbShoeThumbPrefix, $ThumbShoePageSep;
+        StopWatch("ThumbShoePageStore::ls begin {$this->galleryGroup}");
         $pats=(array)$pats; 
-        array_push($pats, "/$this->ImgRx$/");
-        $dir = $this->picDir;
+        $topdir = PageVar($this->galleryGroup . '.' . $this->galleryGroup,
+                          '$TSUploadTopDir');
+
+        StopWatch("ThumbShoePageStore::ls topdir=$topdir");
         $out = array();
         $o = array();
-        $dfp = @opendir($dir);
+        $dfp = @opendir($topdir);
         if ($dfp)
         {
-            while ( ($pagefile = readdir($dfp)) !== false) {
-                if ($pagefile{0} == '.') continue;
-                if (is_dir("$dir/$pagefile")) continue;
-                if (preg_match("/^$ThumbShoeThumbPrefix/", $pagefile)) continue;
-                $pn = str_replace('.', '_', $pagefile);
-                $pn = MakePageName($this->galleryGroup . '.' . $this->galleryGroup,
-                                   $pn);
-                $o[] = $pn;
+            while ( ($file = readdir($dfp)) !== false) {
+                if ($file{0} == '.') continue;
+                if (is_dir("$topdir/$file")) {
+                    $sub_dfp = @opendir("$topdir/$file");
+                    while ( ($subfile = readdir($sub_dfp)) !== false) {
+                        if ($subfile{0} == '.') continue;
+                        if (is_dir("$topdir/$file/$subfile")) continue;
+                        if (!preg_match("/$this->ImgRx$/", $subfile)) continue;
+                        if (preg_match("/^$ThumbShoeThumbPrefix/", $subfile)) continue;
+                        $pn = str_replace('.', '_', $subfile);
+                        $pn = "${file}${ThumbShoePageSep}" . $pn;
+                        $pn = MakePageName($this->galleryGroup . '.' . $this->galleryGroup,
+                                           $pn);
+                        $o[] = $pn;
+                        StopWatch("ThumbShoePageStore::ls pn=$pn");
+                    }
+                    closedir($sub_dfp);
+                }
+                else
+                {
+                    if (!preg_match("/$this->ImgRx$/", $file)) continue;
+                    if (preg_match("/^$ThumbShoeThumbPrefix/", $file)) continue;
+                    $pn = str_replace('.', '_', $file);
+                    $pn = MakePageName($this->galleryGroup . '.' . $this->galleryGroup,
+                                       $pn);
+                    $o[] = $pn;
+                    StopWatch("ThumbShoePageStore::ls pn=$pn");
+                }
             }
             closedir($dfp);
         }
-        StopWatch("ThumbShoePageStore::ls merge {$this->picDir}");
+        StopWatch("ThumbShoePageStore::ls merge {$this->galleryGroup}");
         $out = array_merge($out, MatchPageNames($o, $pats));
-        StopWatch("ThumbShoePageStore::ls end {$this->picDir}");
+        StopWatch("ThumbShoePageStore::ls end {$this->galleryGroup}");
         return $out;
     }
     function add_to_cache($pagename, $page) {

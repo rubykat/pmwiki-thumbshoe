@@ -11,8 +11,8 @@ ThumbShoeMakeThumb($pagename,$picpath,$w=128,$h=128) {
     global $ThumbShoeThumbBg, $ThumbShoeThumbPrefix;
     global $UploadDir, $UploadPrefixFmt;
 
-    $uploaddir = FmtPageName("$UploadDir$UploadPrefixFmt", $pagename);
-    $name = FmtPageName('{$Name}', $pagename);
+    $uploaddir = PageVar($pagename, '$TSUploadDir');
+    $name = PageVar($pagename, '$Name');
 
     $thumbpath = "$uploaddir/${ThumbShoeThumbPrefix}${name}.png";
     if (!file_exists($picpath)) return;

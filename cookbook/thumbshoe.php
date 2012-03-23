@@ -22,6 +22,7 @@ $RecipeInfo['ThumbShoe']['Version'] = '2012-03-16';
 SDV($ThumbShoeThumbBg, "grey");
 SDV($ThumbShoeThumbPrefix, "thumb_");
 SDV($ThumbShoeKeywordsGroup, "Category");
+SDV($ThumbShoePageSep, '-');
 SDV($ThumbShoeCacheFmt, 'thumbshoe.d/{$FullName}');
 SDVA($ThumbShoeImgExt, array(
 'gif',
@@ -154,74 +155,5 @@ SDVA($ThumbShoeFields, array(
 include("thumbshoe/pagestore.php");
 include("thumbshoe/thumbs.php");
 include("thumbshoe/cluster.php");
-
-## Add a custom page storage location and some bundled wikipages.
-#@include("thumbshoe/bundlepages.php");
-
-$FmtPV['$KeywordsLinked'] = "ThumbShoeKeywords(\$pn, 'LinkedTitle')";
-$FmtPV['$KeywordsLinkedName'] = "ThumbShoeKeywords(\$pn, 'LinkedName')";
-$FmtPV['$KeywordsName'] = "ThumbShoeKeywords(\$pn, 'Name')";
-
-function ThumbShoeKeywords($pagename, $label='LinkedName') {
-        global $ThumbShoeKeywordsGroup;
-	$inval = PageTextVar($pagename, 'Keywords');
-	$out = '';
-	// don't process if there are already links there
-	if (strpos($inval, '[[') !== false)
-	{
-		$out = $inval;
-	}
-	else
-	{
-            $array_sep = '';
-            if (strpos($inval, ';') !== false)
-            {
-                $array_sep = ';';
-            }
-            $oo = array();
-	    if ($label == 'Name') // one page name, not parts
-	    {
-	    	$pn = str_replace($array_sep, ' ', $inval);
-		$cpage = MakePageName($pagename, "$ThumbShoeKeywordsGroup.$pn");
-		$out = PageVar($cpage, '$Name');
-	    }
-	    else
-	    {
-		$parts = ($array_sep
-			  ? explode($array_sep, $inval)
-			  : array($inval));
-		foreach($parts as $part)
-		{
-		    $part = trim($part);
-		    if ($part)
-		    {
-			$cpage = MakePageName($pagename, "$ThumbShoeKeywordsGroup.$part");
-			if ($label == 'LinkedTitle')
-			{
-			    $oo[] = "[[$cpage|+]]";
-			}
-			else
-			{
-			    $oo[] = "[[$cpage|$part]]";
-			}
-		    }
-		}
-	    }
-	    if ($array_sep == ',' or $array_sep == ';')
-	    {
-		$out .= implode("$array_sep ", $oo);
-	    }
-	    else if ($array_sep == '/' or $array_sep == ' ')
-	    {
-		$out .= implode($array_sep, $oo);
-	    }
-	    else
-	    {
-		$out .= implode(" $array_sep ", $oo);
-	    }
-	}
-	rtrim($out);
-	return $out;
-}
-
+include("thumbshoe/vars.php");
 
