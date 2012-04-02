@@ -9,7 +9,7 @@ SDV($UploadDir,'uploads');
 function
 ThumbShoeMakeThumb($pagename,$picpath,$w=128,$h=128) {
     global $ThumbShoeThumbBg, $ThumbShoeThumbPrefix;
-    global $UploadDir, $UploadPrefixFmt;
+    global $UploadDir;
 
     $uploaddir = PageVar($pagename, '$TSUploadDir');
     $name = PageVar($pagename, '$Name');
