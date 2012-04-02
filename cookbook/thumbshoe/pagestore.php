@@ -17,6 +17,7 @@ class ThumbShoePageStore extends PageStore {
         global $UploadPrefixFmt;
         global $ThumbShoeFields, $ThumbShoeImgExt, $ThumbShoeCacheFmt;
         global $ThumbShoeKeywordsGroup;
+        $this->iswrite = true;
         $this->galleryGroup = $galleryGroup;
         $this->hidemeta = $hidemeta;
         $this->cachefmt = $ThumbShoeCacheFmt;
@@ -133,6 +134,24 @@ class ThumbShoePageStore extends PageStore {
             }
         }
         return;
+    }
+    function delete($pagename) {
+        global $Now;
+        global $ThumbShoeThumbPrefix;
+        StopWatch("ThumbShoePageStore::delete begin $pagename");
+
+        $pagefile = $this->pagefile($pagename);
+        @rename($pagefile,"$pagefile,del-$Now");
+
+        // also remove the cachefile and the thumbnail
+        $cachefile = $this->cachefile($pagename);
+        @unlink($cachefile);
+
+        $uploaddir = PageVar($pagename, '$TSUploadDir');
+        $name = PageVar($pagename, '$Name');
+        $thumbpath = "$uploaddir/${ThumbShoeThumbPrefix}${name}.png";
+        @unlink($thumbpath);
+        StopWatch("ThumbShoePageStore::delete end $pagename");
     }
     function ls($pats=NULL) {
         global $UploadDir, $UploadPrefixFmt;
