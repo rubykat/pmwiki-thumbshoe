@@ -73,6 +73,7 @@ $FmtPV['$TSUploadPage'] = "ThumbShoeUploadPage(\$pn, 'Page')";
 $FmtPV['$TSUploadDir'] = "ThumbShoeUploadPage(\$pn, 'Dir')";
 $FmtPV['$TSUploadTopDir'] = "ThumbShoeUploadPage(\$pn, 'TopDir')";
 $FmtPV['$TSPageImage'] = "ThumbShoeUploadPage(\$pn, 'Image')";
+$FmtPV['$TSPageImageBase'] = "ThumbShoeUploadPage(\$pn, 'ImageBase')";
 
 function ThumbShoeUploadPage($pagename, $label='Page') {
     global $UploadDir, $UploadPrefixFmt;
@@ -98,6 +99,12 @@ function ThumbShoeUploadPage($pagename, $label='Page') {
         $topdir = "$UploadDir/$group";
         $upload_page = $pagename;
     }
+    else if ($UploadPrefixFmt == '')
+    {
+        $dir = $UploadDir;
+        $topdir = $UploadDir;
+        $upload_page = "${group}.${group}";
+    }
     else // give up
     {
         $dir = FmtPageName("$UploadDir$UploadPrefixFmt", $pagename);
@@ -113,7 +120,13 @@ function ThumbShoeUploadPage($pagename, $label='Page') {
             $ul_name = $m2[1];
             $upload_page = "${group}.${ul_name}";
             $img_name = $m2[2] . '.' . $ext;
+            $img_base = $m2[2];
             $dir = FmtPageName("$UploadDir$UploadPrefixFmt", $upload_page);
+        }
+        else
+        {
+            $img_name = $base . '.' . $ext;
+            $img_base = $base;
         }
 
     }
@@ -129,9 +142,13 @@ function ThumbShoeUploadPage($pagename, $label='Page') {
     {
         return $topdir;
     }
-    else
+    else if ($label == 'Image')
     {
         return $img_name;
+    }
+    else
+    {
+        return $img_base;
     }
 } // ThumbShoeUploadPage
 

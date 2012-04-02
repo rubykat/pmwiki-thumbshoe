@@ -41,7 +41,7 @@ class ThumbShoePageStore extends PageStore {
         $this->IMFormat = $format;
     }
 
-    function pagefile($pagename) {
+    function pagefile($pagename, $must_exist=true) {
         if( $pagename=="" ) return "";
         $pagename = str_replace('/', '.', $pagename);
 
@@ -51,7 +51,7 @@ class ThumbShoePageStore extends PageStore {
             $filename = PageVar($pagename, '$TSPageImage');
             $dir = PageVar($pagename, '$TSUploadDir');
             $fullname = $dir . '/' . $filename;
-            if (file_exists($fullname))
+            if (file_exists($fullname) || !$must_exist)
             {
                 return $fullname;
             }
@@ -67,6 +67,7 @@ class ThumbShoePageStore extends PageStore {
         }
         return '';
     }
+
     function read($pagename, $since=0) {
         if( $pagename=="" ) return "";
         global $ThumbShoeThumbPrefix, $ThumbShoeKeywordsGroup;
@@ -138,7 +139,6 @@ class ThumbShoePageStore extends PageStore {
     function delete($pagename) {
         global $Now;
         global $ThumbShoeThumbPrefix;
-        StopWatch("ThumbShoePageStore::delete begin $pagename");
 
         $pagefile = $this->pagefile($pagename);
         @rename($pagefile,"$pagefile,del-$Now");
@@ -151,7 +151,6 @@ class ThumbShoePageStore extends PageStore {
         $name = PageVar($pagename, '$Name');
         $thumbpath = "$uploaddir/${ThumbShoeThumbPrefix}${name}.png";
         @unlink($thumbpath);
-        StopWatch("ThumbShoePageStore::delete end $pagename");
     }
     function ls($pats=NULL) {
         global $UploadDir, $UploadPrefixFmt;
@@ -204,6 +203,57 @@ class ThumbShoePageStore extends PageStore {
         StopWatch("ThumbShoePageStore::ls end {$this->galleryGroup}");
         return $out;
     }
+
+    function rename($pagename,$newpagename) {
+        global $ThumbShoeThumbPrefix;
+
+        $newgroup = PageVar($newpagename, '$Group');
+        if ($newgroup != $this->galleryGroup)
+        {
+            Abort("Cannot rename $pagename to $newpagename; groups do not match");
+        }
+
+        $pagefile = $this->pagefile($pagename);
+        if (preg_match('/\.(\w+)$/',$pagefile,$m1))
+        {
+            $ext = $m1[1];
+        }
+        $newpagefile = $this->pagefile($newpagename,false);
+        if (!$newpagefile) // probably has no extension
+        {
+            $newpagename = $newpagename . '_' . $ext;
+            $newpagefile = $this->pagefile($newpagename,false);
+            if (!$newpagefile) // Huh?
+            {
+                Abort("Cannot rename $pagename to $newpagename; cannot calculate new filename");
+            }
+        }
+        else if (preg_match('/(.*)\.(\w+)$/',$newpagefile,$m2))
+        {
+            $newbase = $m2[1];
+            $newext = $m2[2];
+            if ($ext != $newext) // not allowed to change extensions
+            {
+                $newpagefile = $newbase . '.' . $ext;
+                $newpagename = preg_replace("/$newext$/", $ext, $newpagename);
+            }
+        }
+
+        @rename($pagefile,$newpagefile);
+
+        // remove the old cachefile and the thumbnail
+        $cachefile = $this->cachefile($pagename);
+        @unlink($cachefile);
+
+        $uploaddir = PageVar($pagename, '$TSUploadDir');
+        $name = PageVar($pagename, '$Name');
+        $thumbpath = "$uploaddir/${ThumbShoeThumbPrefix}${name}.png";
+        @unlink($thumbpath);
+        
+        return $newpagename;
+    } // rename
+
+    /* ============================================================ */
     function add_to_cache($pagename, $page) {
         global $ThumbShoeCacheDir;
         foreach($page as $k=>$v) 
