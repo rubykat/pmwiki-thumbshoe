@@ -23,7 +23,7 @@ SDV($ThumbShoeThumbBg, "grey");
 SDV($ThumbShoeThumbPrefix, "thumb_");
 SDV($ThumbShoeKeywordsGroup, "Category");
 SDV($ThumbShoePageSep, '-');
-SDV($ThumbShoeCacheFmt, 'thumbshoe.d/{$FullName}');
+SDV($ThumbShoeDirFmt, 'thumbshoe.d/{$Group}/{$FullName}');
 SDVA($ThumbShoeImgExt, array(
 'gif',
 'png',
