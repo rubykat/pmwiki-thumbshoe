@@ -6,8 +6,8 @@
 
 SDV($UploadDir,'uploads');
 
-$HandleActions['renamets'] = 'HandleThumbShoeRename';
-$HandleActions['postrenamets'] = 'HandleThumbShoePostRename';
+SDV($HandleActions['rename'], 'HandleThumbShoeRename');
+SDV($HandleActions['postrenamets'], 'HandleThumbShoePostRename');
 
 SDV($ThumbShoeRenameFmt,
     "<h1 class='wikiaction'>$[Rename] \$ImgName</a></h1>
@@ -29,7 +29,15 @@ function HandleThumbShoeRename($pagename,$auth='edit') {
     $imgRx = '(' . implode('|', $ThumbShoeImgExt) . ')';
     if (!preg_match("/(.*)_$imgRx$/i", $pagename, $m1))
     {
-        Abort("Cannot rename $pagename; is not an Image page"); return;
+        if (function_exists('HandleRename'))
+        {
+            // use the normal Rename
+            return HandleRename($pagename);
+        }
+        else
+        {
+            Abort("Cannot rename $pagename; is not an Image page"); return;
+        }
     }
 
     $tsdir = '';
