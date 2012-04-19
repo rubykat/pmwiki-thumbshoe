@@ -84,4 +84,5 @@ include("thumbshoe/pagestore.php");
 include("thumbshoe/thumbs.php");
 include("thumbshoe/vars.php");
 include("thumbshoe/rename.php");
+include("thumbshoe/delete.php");
 
