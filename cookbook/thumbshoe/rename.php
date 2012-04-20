@@ -130,7 +130,7 @@ function TSFmtPageList($pagename,$gallery_group,$opt) {
 function TSFPLPickPage($pagename,&$pagelist,$opt) {
     global $PagePickListFmt;
     SDV($PagePickListFmt,'<option$Select>$FullName</option>');
-    $uploadpage = PageVar($pagename, '$TSUploadPage');
+    $uploadpage = PageVar($pagename, '$TSAttachPage');
     $currentpage = FmtPageName($PagePickListFmt,$uploadpage);
     $out = array();
     foreach($pagelist as $item) {

@@ -69,13 +69,13 @@ function ThumbShoeKeywords($pagename, $label='LinkedName') {
 	return $out;
 }
 
-$FmtPV['$TSUploadPage'] = "ThumbShoeUploadPage(\$pn, 'Page')";
-$FmtPV['$TSUploadDir'] = "ThumbShoeUploadPage(\$pn, 'Dir')";
-$FmtPV['$TSUploadTopDir'] = "ThumbShoeUploadPage(\$pn, 'TopDir')";
-$FmtPV['$TSPageImage'] = "ThumbShoeUploadPage(\$pn, 'Image')";
-$FmtPV['$TSPageImageBase'] = "ThumbShoeUploadPage(\$pn, 'ImageBase')";
+$FmtPV['$TSAttachPage'] = "ThumbShoeAttachPage(\$pn, 'Page')";
+$FmtPV['$TSAttachDir'] = "ThumbShoeAttachPage(\$pn, 'Dir')";
+$FmtPV['$TSAttachTopDir'] = "ThumbShoeAttachPage(\$pn, 'TopDir')";
+$FmtPV['$TSPageImage'] = "ThumbShoeAttachPage(\$pn, 'Image')";
+$FmtPV['$TSPageImageBase'] = "ThumbShoeAttachPage(\$pn, 'ImageBase')";
 
-function ThumbShoeUploadPage($pagename, $label='Page') {
+function ThumbShoeAttachPage($pagename, $label='Page') {
     global $UploadDir, $UploadPrefixFmt;
     global $ThumbShoePageSep, $ThumbShoeImgExt, $NamePattern;
 
@@ -150,7 +150,7 @@ function ThumbShoeUploadPage($pagename, $label='Page') {
     {
         return $img_base;
     }
-} // ThumbShoeUploadPage
+} // ThumbShoeAttachPage
 
 # -------------------- Conditions -------------------------------
 

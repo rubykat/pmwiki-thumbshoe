@@ -104,7 +104,7 @@ class ThumbShoePageStore extends PageStore {
         $cachefile = $this->cachefile($pagename);
         @unlink($cachefile);
 
-        $uploaddir = PageVar($pagename, '$TSUploadDir');
+        $uploaddir = PageVar($pagename, '$TSAttachDir');
         $name = PageVar($pagename, '$Name');
         $thumbpath = "$uploaddir/${ThumbShoeThumbPrefix}${name}.png";
         @unlink($thumbpath);
@@ -117,7 +117,7 @@ class ThumbShoePageStore extends PageStore {
         StopWatch("ThumbShoePageStore::ls begin {$this->galleryGroup}");
         $pats=(array)$pats; 
         $topdir = PageVar($this->galleryGroup . '.' . $this->galleryGroup,
-                          '$TSUploadTopDir');
+                          '$TSAttachTopDir');
 
         StopWatch("ThumbShoePageStore::ls topdir=$topdir");
         $out = array();
@@ -206,10 +206,10 @@ class ThumbShoePageStore extends PageStore {
         @rename($imagefile,$newimagefile);
 
         // move the old thumbnail
-        $uploaddir = PageVar($pagename, '$TSUploadDir');
+        $uploaddir = PageVar($pagename, '$TSAttachDir');
         $name = PageVar($pagename, '$Name');
         $thumbpath = "$uploaddir/${ThumbShoeThumbPrefix}${name}.png";
-        $newuploaddir = PageVar($newpagename, '$TSUploadDir');
+        $newuploaddir = PageVar($newpagename, '$TSAttachDir');
         $newname = PageVar($newpagename, '$Name');
         $newthumbpath = "$newuploaddir/${ThumbShoeThumbPrefix}${newname}.png";
         @rename($thumbpath,$newthumbpath);
@@ -255,7 +255,7 @@ class ThumbShoePageStore extends PageStore {
         if (preg_match('/(.*)_' . $this->imgRx . '$/i', $name, $m))
         {
             $filename = PageVar($pagename, '$TSPageImage');
-            $dir = PageVar($pagename, '$TSUploadDir');
+            $dir = PageVar($pagename, '$TSAttachDir');
             $fullname = $dir . '/' . $filename;
             if (file_exists($fullname) || !$must_exist)
             {
