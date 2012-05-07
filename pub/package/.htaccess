@@ -1,7 +1,0 @@
-## Only allow retrieval of certain types of files.
-<FilesMatch "\.(bmp|gif|png|jpe?g|php|html|css|txt|js)$">
-  Order allow,deny
-  Allow from All
-</FilesMatch>
-Order deny,allow
-Deny from All
